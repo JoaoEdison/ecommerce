@@ -36,12 +36,14 @@ public function __construct($opts = array(), $tpl_dir = "/views/"){
         
 }
     
-private function setData($data = [])
-{
-        foreach ($data as $key => $value)
-        {
-            $this->tpl->assign($key, $value);
-        }  
+private function setData($data = array())
+{		
+    foreach ($data as $key => $value) {
+    
+       $this->tpl->assign($key, $value);
+     
+    }
+     
 }
     
 public function setTpl($nametpl, $data = [], $returnHTML = false)
@@ -49,7 +51,7 @@ public function setTpl($nametpl, $data = [], $returnHTML = false)
         
     $this->setData($data);
 
-    return $this->tpl->draw($nametpl, $returnHTML);
+    return $this->tpl->draw($nametpl, $returnHTML);    
         
 }
     
