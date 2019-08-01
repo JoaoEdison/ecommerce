@@ -159,7 +159,9 @@ $app->get('/login', function(){
     $page = new page();
     
     $page->setTpl("login", [
-        'error'=>User::getError()
+        'error'=>User::getError(),
+        'error_register'=>User::getErrorRegister(),
+        'registerValues'=>(isset($_SESSION['registerValues'])) ? $_SESSION['registerValues'] : ['name'=>'', 'email'=>'', 'phone'=>'']
     ]);
     
 });
@@ -185,6 +187,76 @@ $app->get('/logout', function(){
     User::logout();
     
     header("Location: /login");
+    exit;
+    
+});
+
+$app->post('/register', function(){
+    
+    $_SESSION['registerValues'] = $_POST;
+    
+    if (!isset($_POST['name']) || $_POST['name'] == ''){
+        
+        User::setErrorRegister("Preencha com o seu nome.");
+        
+        header("Location: /login");
+        exit;
+        
+    }
+    
+    if (!isset($_POST['email']) || $_POST['email'] == ''){
+        
+        User::setErrorRegister("Preencha com o seu e-mail.");
+        
+        header("Location: /login");
+        exit;
+        
+    }
+    
+    if (!isset($_POST['phone']) || $_POST['phone'] == ''){
+        
+        User::setErrorRegister("Preencha com o seu telefone.");
+        
+        header("Location: /login");
+        exit;
+        
+    }
+    
+    if (!isset($_POST['password']) || $_POST['password'] == ''){
+        
+        User::setErrorRegister("Digite uma senha.");
+        
+        header("Location: /login");
+        exit;
+        
+    }
+    
+    if (User::checkLoginExist($_POST['email'])){
+        
+        User::setErrorRegister("O e-mail informado ja esta cadastrado.");
+        
+        header("Location: /login");
+        exit;
+    }
+    
+    $user = new User();
+
+    $user->setData([
+        'inadmin'=>0,
+        'deslogin'=>$_POST['email'],
+        'desperson'=>$_POST['name'],
+        'desemail'=>$_POST['email'],
+        'despassword'=>$_POST['password'],
+        'nrphone'=>$_POST['phone']
+    ]);
+    
+    $user->save();
+    
+    User::login($_POST['email'], $_POST['password']);
+    
+    $_SESSION['registerValues'] = NULL;
+    
+    header('Location: /checkout');
     exit;
     
 });
