@@ -21,6 +21,7 @@ class Cart extends Model {
             
             $cart->get((int)$_SESSION[Cart::SESSION]['idcart']);
             
+            
         } else {
             
             $cart->getFromSessionID();
@@ -47,9 +48,9 @@ class Cart extends Model {
                 
             }
             
-        }
-        
-        return $cart;
+        }      
+       
+       return $cart;       
         
     }
     
@@ -100,15 +101,15 @@ class Cart extends Model {
         $sql = new Sql();
         
         $results = $sql->select("CALL sp_carts_save(:idcart, :dessessionid, :iduser, :deszipcode, :vlfreight, :nrdays)", [
-            ':idcart'=>$this->getidcart(),
+            ':idcart'=>(int)$this->getidcart(),
             ':dessessionid'=>$this->getdessessionid(),
-            ':iduser'=>$this->getiduser(),
+            ':iduser'=>(int)$this->getiduser(),
             ':deszipcode'=>$this->getdeszipcode(),
             ':vlfreight'=>$this->getvlfreight(),
-            ':nrdays'=>$this->getnrdays()
+            ':nrdays'=>(int)$this->getnrdays()
           ]);
         
-        $this->setData($results[0]);
+       $this->setData($results[0]);
         
     }
     
@@ -348,6 +349,12 @@ class Cart extends Model {
                     ]);
          
        }
+        
+    }
+    
+    public static function removeFromSession(){
+        
+        $_SESSION[Cart::SESSION] = NULL;
         
     }
 }

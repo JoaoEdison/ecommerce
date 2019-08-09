@@ -141,16 +141,107 @@ $app->get('/checkout', function(){
     
     User::verifyLogin(false);
     
-    $cart = Cart::getFromSession();
-    
     $address = new Address();
+    
+    $cart = Cart::getFromSession();    
+    
+    if (isset($_GET['zipcode'])){
+        
+        $cep = str_replace('-', '', $_GET['zipcode']);
+        
+        $address->loadFromCEP($cep);        
+                
+        $cart->setdeszipcode($cep);        
+                   
+        $cart->save();
+        
+        $cart->getCalculateTotal();       
+    }
+    
+    if (!$address->getdesaddress()) $address->setdesaddress('');
+    if (!$address->getdescity()) $address->setdescity('');
+    if (!$address->getdesstate()) $address->setdesstate('');
+    if (!$address->getdescountry()) $address->setdescountry('');
+    if (!$address->getdesdistrict()) $address->setdesdistrict('');
+    if (!$address->getdescomplement()) $address->setdescomplement('');
+    if (!$address->getdeszipcode()) $address->setdeszipcode('');
     
     $page = new page();
     
     $page->setTpl("checkout", [
         'cart'=>$cart->getValues(),
-        'address'=>$address->getValues()        
+        'address'=>$address->getValues(),
+        'products'=>$cart->getProducts(),
+        'error'=>Address::getMsgError()
     ]);
+    
+});
+
+$app->post('/checkout', function(){
+    
+    User::verifyLogin(false);
+    
+        if (!isset($_POST['zipcode']) || $_POST['zipcode'] === ''){
+        
+            Address::setMsgError("Informe o CEP.");
+        
+            header('Location: /checkout');
+            exit;
+        }
+    
+        if (!isset($_POST['desaddress']) || $_POST['desaddress'] === ''){
+        
+            Address::setMsgError("Informe o endereco.");
+        
+            header('Location: /checkout');
+            exit;
+        }   
+    
+        if (!isset($_POST['descity']) || $_POST['descity'] === ''){
+        
+            Address::setMsgError("Informe a cidade.");
+        
+            header('Location: /checkout');
+            exit;
+        }
+    
+        if (!isset($_POST['desstate']) || $_POST['desstate'] === ''){
+        
+            Address::setMsgError("Informe o estado.");
+        
+            header('Location: /checkout');
+            exit;
+        }
+    
+        if (!isset($_POST['descountry']) || $_POST['descountry'] === ''){
+        
+            Address::setMsgError("Informe o Pais.");
+        
+            header('Location: /checkout');
+            exit;
+        }
+    
+        if (!isset($_POST['desdistrict']) || $_POST['desdistrict'] === ''){
+
+            Address::setMsgError("Informe o bairro.");
+
+            header('Location: /checkout');
+            exit;
+        }
+    
+    $user = User::getFromSession();
+    
+    $address = new Address();
+    
+    $_POST['deszipcode'] = str_replace('-', '', $_POST['zipcode']);
+    $_POST['idperson'] = $user->getidperson();
+    
+    $address->setData($_POST);
+    
+    $address->save();
+    
+    header("Location: /order");
+    exit;
     
 });
 
@@ -185,6 +276,10 @@ $app->post('/login', function(){
 $app->get('/logout', function(){
     
     User::logout();
+    
+    Cart::removeFromSession();
+    
+    session_regenerate_id();
     
     header("Location: /login");
     exit;

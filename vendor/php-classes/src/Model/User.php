@@ -74,7 +74,7 @@ public static function login($login, $password)
         throw new \Exception("Usuario inexistente ou senha invalida.");
     } 
     
-    $data = $results[0];
+    $data = $results[0];    
     
     if(password_verify($password, $data["despassword"]))
     {
@@ -139,7 +139,7 @@ public function save()
         $results = $sql->select("CALL sp_users_save(:desperson, :deslogin, :despassword, :desemail, :nrphone, :inadmin)", array(
             ":desperson" => utf8_decode($this->getdesperson()),
             ":deslogin" => $this->getdeslogin(),
-            ":despassword" => $this->getdespassword(),
+            ":despassword" => User::getPasswordHash($this->getdespassword()),
             ":desemail" => $this->getdesemail(),
             ":nrphone" => $this->getnrphone(),
             ":inadmin" => $this->getinadmin()
