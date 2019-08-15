@@ -101,12 +101,12 @@ class Cart extends Model {
         $sql = new Sql();
         
         $results = $sql->select("CALL sp_carts_save(:idcart, :dessessionid, :iduser, :deszipcode, :vlfreight, :nrdays)", [
-            ':idcart'=>(int)$this->getidcart(),
+            ':idcart'=>$this->getidcart(),
             ':dessessionid'=>$this->getdessessionid(),
-            ':iduser'=>(int)$this->getiduser(),
+            ':iduser'=>$this->getiduser(),
             ':deszipcode'=>$this->getdeszipcode(),
             ':vlfreight'=>$this->getvlfreight(),
-            ':nrdays'=>(int)$this->getnrdays()
+            ':nrdays'=>$this->getnrdays()
           ]);
         
        $this->setData($results[0]);
@@ -320,7 +320,7 @@ class Cart extends Model {
         
         $this->updateFreight();
         
-        $totals = $this->getProductsTotals();
+        $totals = $this->getProductsTotals();        
         
         $this->setvlsubtotal($totals['vlprice']);
         $this->setvltotal($totals['vlprice'] + $this->getvlfreight());
@@ -356,6 +356,7 @@ class Cart extends Model {
         
         $_SESSION[Cart::SESSION] = NULL;
         
-    }
+    }    
+    
 }
 
