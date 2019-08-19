@@ -69,14 +69,14 @@ public static function login($login, $password)
         ":LOGIN"=>$login
     ));
     
-    if(count($results) === 0)
+    if (count($results) === 0)
     {
         throw new \Exception("Usuario inexistente ou senha invalida.");
     } 
     
     $data = $results[0];    
     
-    if(password_verify($password, $data["despassword"]))
+    if (password_verify($password, $data["despassword"]))
     {
     
         $user = new User();

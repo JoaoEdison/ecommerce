@@ -288,7 +288,7 @@ $app->post('/login', function(){
         
     }
     
-    header("Location: /checkout");
+    header("Location: /login");
     exit;
     
 });
@@ -627,6 +627,92 @@ $app->get('/profile/orders/:idorder', function($idorder){
         'order'=>$order->getValues(),
         'cart'=>$cart->getValues(),
         'products'=>$cart->getProducts()
-    ]); 
+    ]);    
     
+});
+
+$app->get('/profile/change-password', function(){
+    
+    User::verifyLogin(false);
+
+    $page = new page();
+    
+    $page->setTpl("profile-change-password", [
+        'changePassError'=>User::getError(),
+        'changePassSuccess'=>User::getSuccess()
+        ]);
+});
+
+$app->post('/profile/change-password', function(){
+    
+    User::verifyLogin(false);
+    
+    if (!isset($_POST['current_pass']) || $_POST['current_pass'] === ''){
+        
+        User::setError("Digite a senha atual.");
+        
+        header("Location: /profile/change-password");
+        exit;
+        
+    }
+    
+    if (!isset($_POST['new_pass']) || $_POST['new_pass'] === ''){
+        
+        User::setError("Digite sua nova senha.");
+        
+        header("Location: /profile/change-password");
+        exit;
+        
+    }
+    
+    if (!isset($_POST['new_pass_confirm']) || $_POST['new_pass_confirm'] === ''){
+        
+        User::setError("Confirme sua senha.");
+        
+        header("Location: /profile/change-password");
+        exit;
+        
+    }
+    
+    if ($_POST['current_pass'] === $_POST['new_pass']){
+        
+        User::setError("Mude a sua senha.");
+        
+        header("Location: /profile/change-password");
+        exit;
+        
+    }
+    
+    if ($_POST['new_pass'] !== $_POST['new_pass_confirm']) {
+
+        User::setError("A senha nova difere da confirmacao.");
+
+        header("Location: /profile/change-password");
+        exit;
+
+    }
+    
+    $user = User::getFromSession();
+    
+    if(!password_verify($_POST['current_pass'], $user->getdespassword())){
+        
+        User::setError("Senha invalida.");
+        
+        header("Location: /profile/change-password");
+        exit;
+        
+    }
+    
+    $password = User::getPasswordHash($_POST['new_pass']);    
+    
+    $user->setdespassword($password);
+        
+    $user->update();
+    
+    $_SESSION[User::SESSION] = $user->getValues();
+        
+    User::setSuccess("Senha alterada!");
+    
+    header("Location: /profile/change-password");
+    exit;
 });
