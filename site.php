@@ -238,13 +238,13 @@ $app->post('/checkout', function(){
     $_POST['deszipcode'] = str_replace('-', '', $_POST['zipcode']);
     $_POST['idperson'] = $user->getidperson();
     
-    $address->setData($_POST);
-    
+    $address->setData($_POST);    
+
     $address->save();    
     
     $cart = Cart::getFromSession(); 
     
-    $totals = $cart->getValues();   
+    $totals = $cart->getValues();     
     
     $order = new Order();
     
