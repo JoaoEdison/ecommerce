@@ -436,39 +436,16 @@ public static function validForgotDecrypt($code)
         
     }
     
-    public static function getPage($page = 1, $itemsPerPage = 10) 
+    public static function getPage($page = 1, $search = '', $itemsPerPage = 10) 
     {
     
         $start = ($page - 1) * $itemsPerPage;
         
         $sql = new Sql();
         
-        $results = $sql->select("
-                SELECT SQL_CALC_FOUND_ROWS * 
-                FROM tb_users a
-                INNER JOIN tb_persons b USING(idperson) 
-                ORDER BY b.desperson
-                LIMIT $start, $itemsPerPage                
-         ");
-        
-        $resultTotal = $sql->select("SELECT FOUND_ROWS() AS nrtotal;");
-        
-        return [
-            'data'=>$results,
-            'total'=>(int)$resultTotal[0]["nrtotal"],
-            'pages'=>ceil($resultTotal[0]["nrtotal"] / $itemsPerPage)
-        ];
-        
-    }
-    
-    public static function getPageSearch($search, $page = 1, $itemsPerPage = 10) 
-    {
-    
-        $start = ($page - 1) * $itemsPerPage;
-        
-        $sql = new Sql();
-        
-        $results = $sql->select("
+        if($search != ''){
+            
+            $results = $sql->select("
                 SELECT SQL_CALC_FOUND_ROWS * 
                 FROM tb_users a
                 INNER JOIN tb_persons b USING(idperson) 
@@ -476,8 +453,21 @@ public static function validForgotDecrypt($code)
                 ORDER BY b.desperson
                 LIMIT $start, $itemsPerPage                
          ", [
-             ':search'=>'%'.$search.'%'
+             ":search"=>'%'.$search.'%'
          ]);
+            
+        } else { 
+            
+            $results = $sql->select("
+                SELECT SQL_CALC_FOUND_ROWS * 
+                FROM tb_users a
+                INNER JOIN tb_persons b USING(idperson)                 
+                ORDER BY b.desperson
+                LIMIT $start, $itemsPerPage                
+         ");
+            
+        }
+        
         
         $resultTotal = $sql->select("SELECT FOUND_ROWS() AS nrtotal;");
         
@@ -488,5 +478,5 @@ public static function validForgotDecrypt($code)
         ];
         
     }
-        
+    
 }
